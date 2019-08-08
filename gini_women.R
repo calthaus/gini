@@ -11,6 +11,10 @@ library(plyr)
 library(knitr)
 library(colorspace)
 
+if (!file.exists('out')){
+  dir.create('out')
+}
+
 for (s in dir('src')){
   source(file.path('src', s))
 }
