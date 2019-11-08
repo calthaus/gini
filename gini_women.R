@@ -21,29 +21,17 @@ for (s in dir('src')){
 set.seed(3297348)
 
 # Load Natsal-3 data (available at http://data-archive.ac.uk)
-dnat3 <- read.dta('data/natsal3.dta')
-
-# Analyse data set
-age_lo <- 16
-age_up <- 44
-
-durine <- within(subset(dnat3, urintested == 'yes' & dage >= age_lo & dage <= age_up & rsex == 'Female', 
-                        select = c('psu', 'dage', 'rsex', 
-                                   'ct_posconfirmed', 'mg_posconfirmed',
-                                   'HPV_6', 'HPV_11', 'HPV_16', 'HPV_18', 
-                                   'urine_wt',
-                                   'hetnonew'
-                                   )), 
-{
-  ct = as.integer(ifelse(ct_posconfirmed == 'positive', 1, 0))
-  mg = as.integer(ifelse(mg_posconfirmed == 'positive', 1, 0))
-  hpv_6 = as.integer(ifelse(HPV_6 == 'Positive', 1, 0))
-  hpv_11 = as.integer(ifelse(HPV_11 == 'Positive', 1, 0))
-  hpv_16 = as.integer(ifelse(HPV_16 == 'Positive', 1, 0))
-  hpv_18 = as.integer(ifelse(HPV_18 == 'Positive', 1, 0))
-  uwt_missing = is.na(urine_wt)
-  uid = 1:length(psu)
-})
+durine <- read.csv("data/natsal3_women.csv")
+durine <- within(durine,
+				 {
+				 	ct = as.integer(ifelse(ct_posconfirmed == 'positive', 1, 0))
+				 	mg = as.integer(ifelse(mg_posconfirmed == 'positive', 1, 0))
+				 	hpv_6 = as.integer(ifelse(HPV_6 == 'Positive', 1, 0))
+				 	hpv_11 = as.integer(ifelse(HPV_11 == 'Positive', 1, 0))
+				 	hpv_16 = as.integer(ifelse(HPV_16 == 'Positive', 1, 0))
+				 	hpv_18 = as.integer(ifelse(HPV_18 == 'Positive', 1, 0))
+				 	uwt_missing = is.na(urine_wt)
+				 })
 
 dct <- within(subset(durine, ct_posconfirmed %in% c('negative', 'positive') & !(hetnonew %in% c(-1, 995, 999)) ), {
   ct_bin = as.integer(ifelse(ct_posconfirmed == 'positive', 1, 0))
@@ -157,11 +145,7 @@ save(dcb, file = file.path('out', 'dcb.RData'))
 save(ct, file = file.path('out', 'ct.RData'))
 
 # Calculate the Lorenz curve and Gini coeffients for chlamydia using Natsal-2
-dnat2 <- read.dta('data/natsal2.dta')
-
-dct_nat2 <- subset(dnat2,
-                   dage >= age_lo & dage <= age_up & rsex == 1 & !(hetnonew %in% c(-1, 995, 999)) & c_result %in% 0:1, 
-                   select = c('dage', 'hetnonew', 'c_result', 'urine_wt'))
+dct_nat2 <- read.csv("data/natsal2_women.csv")
 
 ct_nat2 <- lorenz_boot(data = dct_nat2, x_cts = 'hetnonew', y_bin = 'c_result', wt = 'urine_wt', plot_lorenz = FALSE, R = 1000)
 
@@ -223,7 +207,7 @@ kable(dfig1_gini[, c("Infection","Gini coefficient","95% confidence interval (CI
 
 # Transmission model
 # Import sexual behaviour data
-data <- read.csv("data/sexual_activity.csv",header=TRUE)
+data <- read.csv("data/natsal2_sexual_activity.csv",header=TRUE)
 data <- na.omit(data)
 
 # Maximal number of partners per year
@@ -343,41 +327,15 @@ for(i in 1:length(dprev$STI)) {
 
 legend("topright",inset=0.0,legend=c("CT","MG","HPV 6","HPV 11","HPV 16","HPV 18"),col=cols,pch=c(0,1,2,4,5,6),bty="n")
 
-plot(NA,log="",xlim=c(0.0125,0.03),ylim=c(0.15,0.65),xlab="STI prevalence",ylab="Gini coefficient",frame=FALSE,axes=FALSE)
+plot(NA,log="",xlim=c(0.01,0.03),ylim=c(0.1,0.5),xlab="STI prevalence",ylab="Gini coefficient",frame=FALSE,axes=FALSE)
 axis(1)
 axis(2)
 mtext("B",side=3,adj=0,cex=1,font=2)
 
 # Add simulations
 red <- 0.1
-beta_start <- 0.282
-gamma_start <- 0.955
-beta <- beta_start
-gamma <- gamma_start
-b <- 1-(1-beta)^a
-out <- ode(init, times, model, parms=list(rho=rho,b=b,gamma=gamma,mu=1))
-prev <- out[dim(out)[1],2:(max+2)]
-x0 <- sum(N*prev)
-y0 <- gini(N,prev)
-beta <- beta_start*(1-red)
-gamma <- gamma_start
-b <- 1-(1-beta)^a
-out <- ode(init, times, model, parms=list(rho=rho,b=b,gamma=gamma,mu=1))
-prev <- out[dim(out)[1],2:(max+2)]
-x1 <- sum(N*prev)
-y1 <- gini(N,prev)
-arrows(x0,y0,x1,y1,length=0.1,lty=1,lwd=2,col="darkgray")
-beta <- beta_start
-gamma <- gamma_start/(1-red)
-b <- 1-(1-beta)^a
-out <- ode(init, times, model, parms=list(rho=rho,b=b,gamma=gamma,mu=1))
-prev <- out[dim(out)[1],2:(max+2)]
-x1 <- sum(N*prev)
-y1 <- gini(N,prev)
-arrows(x0,y0,x1,y1,length=0.1,lty=1,lwd=2,col="darkgray")
-
-beta_start <- 0.225
-gamma_start <- 0.665
+beta_start <- 0.19
+gamma_start <- 0.573
 beta <- beta_start
 gamma <- gamma_start
 b <- 1-(1-beta)^a
@@ -408,7 +366,7 @@ i <- 1
 lines(c(dprev[i,2],dprev[i,2]),c(dfig1_gini[i,3],dfig1_gini[i,4]),col=cols[i])
 lines(c(dprev[i,3],dprev[i,4]),c(dfig1_gini[i,2],dfig1_gini[i,2]),col=cols[i])
 text(dprev[i,2],dfig1_gini[i,2]+0.01," CT Natsal-3",adj=c(0,0),cex=0.75,col=cols[i])
-    
+
 load(file = file.path('out', 'dprev_nat2.RData'))
 load(file = file.path('out', 'ct_nat2.RData'))
 
