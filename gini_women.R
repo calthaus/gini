@@ -282,23 +282,29 @@ mtext("A",side=3,adj=0,cex=1,font=2)
 
 beta <- c(0.075,0.1,0.15,0.25)
 gamma <- 1/c(1,2,4,6)
+map <- as.data.frame(matrix(NA, nrow = length(beta)*length(gamma), ncol = 4))
+names(map) <- c("beta", "gamma", "prevalence", "gini")
 epsilon <- 0
 rho <- mixing(epsilon)
 a <- sexacts(0,28/365,1,epsilon)
 
+jj <- 0
 for(i in beta) {
 	p <- numeric()
 	g <- numeric()
 	for(j in gamma) {
+		jj <- jj + 1
 		b <- 1-(1-i)^a
 		out <- ode(init, times, model, parms=list(rho=rho,b=b,gamma=j,mu=1))
 		prev <- out[dim(out)[1],2:(max+2)]
 		p <- c(p,sum(N*prev))
 		g <- c(g,gini(N,prev))
+		map[jj, ] <- c(i, j, sum(N*prev), gini(N,prev))
 	}
 	lines(p,g,lty=2)
 	text(max(p),min(g),paste(100*i,"%"),pos=1,cex=0.75)
 }
+write.csv(map, "data/simulated_gini.csv", quote = FALSE, row.names = FALSE)
 
 for(j in gamma) {
 	p <- numeric()
