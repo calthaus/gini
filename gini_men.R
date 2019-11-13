@@ -171,7 +171,7 @@ load(file = file.path('out', 'dfig1.RData'))
 STI <- levels(dfig1$STI)
 cols <- rainbow_hcl(length(STI))
 # Fig. 1A
-plot(c(0,1),c(0,1),ty="l",lty=3,xlab="New heterosex. partners last year (cumul. proportion)",ylab="STI infections (cumul. proportion)",frame=FALSE)
+plot(c(0,1),c(0,1),ty="l",lty=3,xlab="New opposite-sex partners last year (cumul. proportion)",ylab="STI infections (cumul. proportion)",frame=FALSE)
 for(i in 1:length(STI)) {
     temp <- dfig1[dfig1$STI==STI[i],]
     lines(temp$x_cum,temp$y_cum,lty=i,col=cols[i])
@@ -179,7 +179,7 @@ for(i in 1:length(STI)) {
 legend("topleft",inset=0.05,legend=c("CT","MG","HPV 6","HPV 11","HPV 16","HPV 18"),col=cols,lty=1:length(STI),bty="n")
 mtext("A",side=3,adj=0,cex=1,font=2)
 # Fig. 1B
-plot(c(0,1),c(0,1),ty="l",lty=3,xlab="New heterosex. partners last year (cumul. proportion)",ylab="CT infections (cumul. proportion)",frame=FALSE)
+plot(c(0,1),c(0,1),ty="l",lty=3,xlab="New opposite-sex partners last year (cumul. proportion)",ylab="CT infections (cumul. proportion)",frame=FALSE)
 polygon(x = c(dcb$x, rev(dcb$x)), y = c(dcb$CI_lo, rev(dcb$CI_up)), col = rgb(0, 0, 1, alpha=0.2), border = NA)
 polygon(x = c(dcb$x, rev(dcb$x)), y = c(dcb$Q1, rev(dcb$Q3)), col = rgb(0, 0, 1, alpha=0.4), border = NA)
 lines(ct$lorenz$x_cum,ct$lorenz$y_cum, col = rgb(0, 0, 1))
@@ -187,7 +187,7 @@ legend("topleft",inset=0.05,legend="CT",col=rgb(0, 0, 1),lty=1,bty="n")
 mtext("B",side=3,adj=0,cex=1,font=2)
 # Fig. 1C
 cols <- rainbow_hcl(2)
-plot(c(0,1),c(0,1),ty="l",lty=3,xlab="New heterosex. partners last year (cumul. proportion)",ylab="CT infections (cumul. proportion)",frame=FALSE)
+plot(c(0,1),c(0,1),ty="l",lty=3,xlab="New opposite-sex partners last year (cumul. proportion)",ylab="CT infections (cumul. proportion)",frame=FALSE)
 temp <- data.frame(Survey = 'Natsal 3', ct$lorenz)
 lines(temp$x_cum,temp$y_cum, col = cols[1], lty=1)
 temp <- data.frame(Survey = 'Natsal 2', ct_nat2$lorenz)
